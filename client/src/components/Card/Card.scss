@@ -45,12 +45,12 @@
     display: flex;
     gap: 20px;
   }
+  .oldPrice {
+    color: gray;
+    text-decoration: line-through;
+  }
   h3 {
     font-size: 18px;
-    font-weight: 15;
-    &:first-child {
-      color: gray;
-      text-decoration: line-through;
-    }
+    font-weight: 400;
   }
 }

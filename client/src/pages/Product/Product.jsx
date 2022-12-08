@@ -1,83 +1,117 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import "./Product.scss";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import BalanceIcon from "@mui/icons-material/Balance";
-
-const images = [
-  "https://images.pexels.com/photos/3268529/pexels-photo-3268529.jpeg?auto=compress&cs=tinysrgb&w=1600",
-  "https://images.pexels.com/photos/1759622/pexels-photo-1759622.jpeg?auto=compress&cs=tinysrgb&w=1600",
-  "https://images.pexels.com/photos/11045200/pexels-photo-11045200.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-];
-
+import { useParams } from "react-router-dom";
+import useFetch from "../../hooks/useFetch";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../redux/cartReducer";
 const Product = () => {
-  const [selectedImg, setSelecterdImg] = useState(0);
-  const [quantity, setQuantity] = useState(0);
+  const id = useParams().id;
+  const [selectedImg, setSelecterdImg] = useState("img");
+  const [quantity, setQuantity] = useState(1);
+  const { data, loading, error } = useFetch(`/products/${id}?populate=*`);
+
+  const dispatch = useDispatch();
   return (
     <div className="product">
-      <div className="left">
-        <div className="images">
-          {images.map((img, ind) => (
-            <img
-              key={img}
-              src={img}
-              alt="Adidas T-Shirt"
-              onClick={() => setSelecterdImg(ind)}
-            />
-          ))}
-        </div>
-        <div className="mainImg">
-          <img src={images[selectedImg]} alt="Adidas T-Shirt" />
-        </div>
-      </div>
-      <div className="right">
-        <h1>Title</h1>
-        <span className="price">199£</span>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. A magnam sed
-          voluptatum, cumque maiores alias dolore, dolorem ratione, quo
-          voluptates fuga error totam dicta consectetur dolor atque quas veniam
-          quisquam!
-        </p>
-        <div className="quantity">
-          <button
-            onClick={() => setQuantity((prev) => (prev === 0 ? 0 : prev - 1))}
-          >
-            -
-          </button>
-          {quantity}
-          <button
-            onClick={() => setQuantity((prev) => (prev === 20 ? 20 : prev + 1))}
-          >
-            +
-          </button>
-        </div>
-        <button className="add">
-          <AddShoppingCartIcon /> ADD TO CART
-        </button>
-        <div className="links">
-          <div className="item">
-            <FavoriteBorderIcon /> ADD TO WISH LIST
+      {loading ? (
+        "Loading"
+      ) : (
+        <>
+          <div className="left">
+            <div className="images">
+              <img
+                src={
+                  process.env.REACT_APP_UPLOAD_URL +
+                  data?.attributes?.img?.data?.attributes?.url
+                }
+                alt={data?.attributes?.title}
+                onClick={() => setSelecterdImg("img")}
+              />
+              <img
+                src={
+                  process.env.REACT_APP_UPLOAD_URL +
+                  data?.attributes?.img2?.data?.attributes?.url
+                }
+                alt={data?.attributes?.title}
+                onClick={() => setSelecterdImg("img2")}
+              />
+            </div>
+            <div className="mainImg">
+              <img
+                src={
+                  process.env.REACT_APP_UPLOAD_URL +
+                  data?.attributes?.[selectedImg]?.data?.attributes?.url
+                }
+                alt={data?.attributes?.title}
+              />
+            </div>
           </div>
-          <div className="item">
-            <BalanceIcon /> ADD TO COMPARE
+          <div className="right">
+            <h1>{data?.attributes?.title}</h1>
+            <span className="price">{data?.attributes?.price}£</span>
+            <p>{data?.attributes?.desc}</p>
+            <div className="quantity">
+              <button
+                onClick={() =>
+                  setQuantity((prev) => (prev === 0 ? 0 : prev - 1))
+                }
+              >
+                -
+              </button>
+              {quantity}
+              <button
+                onClick={() =>
+                  setQuantity((prev) => (prev === 20 ? 20 : prev + 1))
+                }
+              >
+                +
+              </button>
+            </div>
+            <button
+              className="add"
+              onClick={() =>
+                dispatch(
+                  addToCart({
+                    id: data.id,
+                    title: data.attributes.title,
+                    desc: data.attributes.desc,
+                    price: data.attributes.price,
+                    img: process.env.REACT_APP_UPLOAD_URL + data.attributes.img.data.attributes.url,
+                    quantity,
+                  })
+                )
+              }
+            >
+              <AddShoppingCartIcon /> ADD TO CART
+            </button>
+            <div className="links">
+              <div className="item">
+                <FavoriteBorderIcon /> ADD TO WISH LIST
+              </div>
+              <div className="item">
+                <BalanceIcon /> ADD TO COMPARE
+              </div>
+            </div>
+            <div className="info">
+              <span>Vendor: Polo</span>
+              <span>Product Type: T-Shirt</span>
+              <span>Tag: T-Shirt, Women, Top</span>
+            </div>
+            <hr />
+            <div className="info">
+              <span>DESCRIPTION</span>
+              <hr />
+              <span>ADDITIONAL INFORMATION</span>
+              <hr />
+              <span>FAQ</span>
+            </div>
           </div>
-        </div>
-        <div className="info">
-          <span>Vendor: Polo</span>
-          <span>Product Type: T-Shirt</span>
-          <span>Tag: T-Shirt, Women, Top</span>
-        </div>
-        <hr />
-        <div className="info">
-          <span>DESCRIPTION</span>
-          <hr />
-          <span>ADDITIONAL INFORMATION</span>
-          <hr />
-          <span>FAQ</span>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };

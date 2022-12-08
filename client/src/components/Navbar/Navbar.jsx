@@ -5,10 +5,19 @@ import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+
 import "./Navbar.scss";
 import Cart from "../Cart/Cart";
 const Navbar = () => {
+  const products = useSelector((state) => state.cart.products);
   const [openCart, setOpenCart] = useState(false);
+
+  const itemQty =
+    products.length >= 1
+      ? products.reduce((accum, curr) => accum + curr.quantity, 0)
+      : 0;
+
   return (
     <div className="navbar">
       <div className="wrapper">
@@ -22,18 +31,18 @@ const Navbar = () => {
             <KeyboardArrowDownIcon />
           </div>
           <div className="item">
-            <Link className="link" to="/products/1">
+            <Link className="link" to="/products/women">
               Women
             </Link>
           </div>
           <div className="item">
-            <Link className="link" to="/products/2">
+            <Link className="link" to="/products/men">
               Men
             </Link>
           </div>
           <div className="item">
-            <Link className="link" to="/products/3">
-              Children
+            <Link className="link" to="/products/kids">
+              Kids
             </Link>
           </div>
         </div>
@@ -72,7 +81,7 @@ const Navbar = () => {
               onClick={() => setOpenCart((prev) => !prev)}
             >
               <ShoppingCartOutlinedIcon />
-              <span>0</span>
+              <span>{itemQty}</span>
             </div>
           </div>
         </div>

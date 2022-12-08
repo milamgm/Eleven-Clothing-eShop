@@ -1,51 +1,27 @@
-import React from 'react'
-import "./List.scss"
-import  Card  from "../Card/Card"
+import React from "react";
+import "./List.scss";
+import Card from "../Card/Card";
+import useFetch from "../../hooks/useFetch";
 
-const data = [
-    {
-      id: 1,
-      img: "https://images.pexels.com/photos/1972115/pexels-photo-1972115.jpeg?auto=compress&cs=tinysrgb&w=1600",
-      img2: "https://images.pexels.com/photos/1163194/pexels-photo-1163194.jpeg?auto=compress&cs=tinysrgb&w=1600",
-      title: "Long Sleeve Graphic T-Shirt",
-      isNew: true,
-      oldPrice: 19,
-      price: 12,
-    },
-    {
-      id: 2,
-      img: "https://images.pexels.com/photos/1759622/pexels-photo-1759622.jpeg?auto=compress&cs=tinysrgb&w=1600",
-      title: "Coat",
-      isNew: true,
-      oldPrice: 19,
-      price: 12,
-    },
-    {
-      id: 3,
-      img: "https://images.pexels.com/photos/1457983/pexels-photo-1457983.jpeg?auto=compress&cs=tinysrgb&w=1600",
-      title: "Skirt",
-      isNew: false,
-      oldPrice: 19,
-      price: 12,
-    },
-    {
-      id: 4,
-      img: "https://images.pexels.com/photos/2065200/pexels-photo-2065200.jpeg?auto=compress&cs=tinysrgb&w=1600",
-      title: "Vintage Blouse",
-      isNew: false,
-      oldPrice: 19,
-      price: 12,
-    },
-  ];
-
-const List = () => {
+const List = ({ subCats, maxPrice, sort, catId }) => {
+  //Fetchs Products acording with filter parameters
+  const { data, loading, error } = useFetch(
+    `/products?populate=*&[filters][categories]?filters[title][$eq]=${catId}${subCats.map(
+      (subCat) => `&[filters][sub_categories][id][$eq]=${subCat}`
+    )}&[filters]][price][$lte]=${maxPrice}&sort=price:${sort}`
+  );
+  console.log(data);
   return (
-    <div className='list'>{
-        data?.map(item => (
-            <Card key={item.id} {...item}/>
-        ))
-    }</div>
-  )
-}
+    <div className="list">
+      {loading
+        ? "Loading"
+        : error
+        ? "Something went worng"
+        : data?.map(({ attributes, id }) => (
+            <Card key={id} {...attributes} id={id} />
+          ))}
+    </div>
+  );
+};
 
-export default List
+export default List;
